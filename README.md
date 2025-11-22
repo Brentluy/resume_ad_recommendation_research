@@ -1,36 +1,183 @@
-# 📌 Project Introduction — Building an Industrial-Grade CTR System from the AntMRC Dataset
+## English Edition（Chinese at the end）
+# 📌 Project Introduction — Building an Industrial-Grade CTR Recommendation System with the AntMRC Dataset
 
-When I started preparing for large-scale recommendation roles (ByteDance Global CRM, Google Personalization, Rokt MLE), one thing became very clear: **every strong candidate needs at least one end-to-end ranking project that truly “feels” industrial** — distributed computing, feature engineering, multi-task modeling, semantic embeddings, and cold-start handling. I didn’t want another toy dataset or a shallow Kaggle notebook. I wanted something that could actually demonstrate my ability to work at production scale.
+While preparing for recommendation/MLE/Ranking roles at ByteDance, Google, and Rokt, I quickly realized something important: **if you want people to trust your ability, you must show a truly “industrial-level” end-to-end recommendation system project.**
 
-That’s why I chose the **AntMRC dataset** — a real-world, multimodal dataset from Ant Financial, containing **mixed structured logs + rich text fields + multi-scene CTR labels**. Even though the raw data reaches the *million/10-million level*, I intentionally restricted myself to **only 10k samples** for the public Colab version. My goal was simple:  
-➡️ *If a system is well-designed, even a 10k subset should reveal the same modeling patterns you’d need at full scale.*
+Not a Kaggle toy dataset.  
+Not a 50-line neural network.  
+But something that demonstrates distributed data processing, feature engineering, deep CTR architectures, multi-task learning, semantic/text fusion, cold-start strategy, and production-style reproducibility.
 
-Over the next few weeks, I treated this like a real company project. I wrote the Spark + HDFS ETL pipeline myself, designed the feature store layout, built user/item/UI features, gradually increased model complexity, added semantic towers, and finally solved cold-start with an LLM fallback. I didn’t just “stack models”; every step was motivated by a concrete issue I observed from the data.
+That is exactly why I chose the **AntMRC dataset**.
 
-The result surprised me even more:  
-| Stage | Model | Overall AUC |
-|------|-------|-------------|
-| Baseline | Simple DNN | **0.74–0.75** |
-| Multi-task | MMoE | **0.80–0.83** |
-| Expert routing | PLE | **0.82–0.86** |
-| Semantic features | MMoE + BERT-Whitening | **0.86–0.87** |
-| Cold-start enhancement | + LLM Fallback | **0.87–0.93** |
-| **Final fusion system** | **MMoE + Content Tower + α-Gate + BERT + LLM** | **0.9739 (val) / 0.9717 (test)** |
+AntMRC is a large-scale recommendation dataset released by Ant Group (Ant Financial). What makes it “realistic” is:
 
-A total lift of **+24 percentage points**, achieved through systematic engineering — not guesswork.
+- It contains **both structured behavioral logs + textual entity sequences** (multi-modal).
+- It has multi-scene CTR labels (A/B/C/D/E five scenes).
+- The raw data can scale to **millions or even tens of millions**.
+- The distribution is complex and very close to real ad/recommendation traffic.
 
-Looking back, this project reflects who I am as an engineer:  
-- I start from **data reliability** (Spark ETL) before touching any model.  
-- I take **feature design seriously** — user, item, cross-features, rolling windows, scene-pivot stats.  
-- I build models the way real companies do: **MMoE → PLE → fusion gates → semantic towers → LLM fallback**.  
-- I debug like someone who has been burned by real systems — always watching distribution drift, cold-start performance, input schema stability.  
-- And I constantly balance **accuracy vs cost**, because no ranking system runs without constraints.
+For open-source/Colab friendliness, I only extracted **10k samples**.  
+But I told myself:
 
-Even though this public repo only trains on 10k rows, the full pipeline is purposely designed so it can scale to **tens of millions** immediately. The architecture (Spark → ORC → feature store → PyTorch MMoE/PLE → semantic tower → LLM fallback → evaluation suite) mirrors what major tech companies use internally. If given the full AntMRC corpus or an actual production dataset, I am confident this system would continue to push AUC even higher.
+➡️ **Even with just 10k rows, I will build the entire system to production standards.**
 
-More importantly, this project convinced me that I genuinely enjoy this type of work — debugging ETL jobs, designing expert networks, understanding scene behavior, improving long-tail recall, and making cold users “come alive” through text signals. This is exactly the kind of end-to-end ownership expected from ML Engineers in ByteDance Ads, Google Recsys, or Rokt’s Ranking team.
+So I pushed this project like a real engineering project rather than an academic experiment.
 
-This repository is my way of showing that — even as a student — **I can already think, structure, and deliver like a real recommender-system engineer**.
+---
+
+## 🚀 My Journey of Building This System from Zero (Exactly Like Working in a Real Company)
+
+I spent about two weeks—from data cleaning all the way to cold-start analysis—and although I used ChatGPT to speed up some coding, **every architectural decision, every evaluation, every “why” was driven by my own reasoning.**
+
+The performance improvement path was very clear:
+
+| Stage | Method | AUC (Val) | Gain |
+|-------|--------|-----------|-------|
+| Step 1 | Simple DNN (structure-only features) | **0.73** | — |
+| Step 2 | MMoE multi-task learning | ~0.80+ | **+7 pts** |
+| Step 3 | PLE layered experts | ~0.86–0.87 | **+6 pts** |
+| Step 4 | BERT-Whitening semantic tower (128-dim) | ~0.90+ | **+4 pts** |
+| Step 5 | Scene-specific Content Tower | ~0.93 | **+3 pts** |
+| Step 6 | LLM Fallback (cold-start semantic injection) | **0.9739** | **+4 pts** |
+| Step 7 | Full end-to-end Val/Test evaluation | **0.97+** | — |
+
+➡️ **Total improvement: from 0.73 → 0.97, a +24-point jump.**
+
+And importantly, the gains didn’t come from “stacking models”.  
+They came from **solving the right problem at each stage**:
+
+- sparse users/items → build 7-day windows & scene-pivoted stats  
+- multi-scene interference → adopt MMoE / PLE  
+- noisy/high-dim text → BERT → Whitening  
+- scene-text bias → Content Tower  
+- severe cold-start → LLM fallback (cold/few-shot only)  
+- missing behavioral signals → semantic embeddings  
+- need for production reliability → artifacts, versioning, reproducible splits  
+
+The whole project is a standard industrial pipeline:
+
+**Spark ETL → Feature Store → Multi-modal Fusion → Multi-task Modeling → Semantic Enhancement → Cold-Start Diagnosis → Model Artifacts (reproducible)**
+
+---
+
+## 📦 AntMRC Dataset: Why It’s Perfect for an Industrial-Grade Project
+
+AntMRC attracted me because:
+
+- The data volume is large enough to mimic real industry difficulty.
+- It contains **query entities, service entities, item titles, item entity names**, and many textual fields.
+- Multi-scene CTR labels naturally fit MMoE/PLE.
+- Natural cold-start exists (especially items).
+- The labels are real, highly imbalanced, and require true engineering solutions.
+
+To put it plainly:
+
+**This is one of the closest publicly available datasets to real ByteDance/Alibaba/Meituan ad traffic that a student can access.**
+
+---
+
+## 🧩 What Was My Overall Strategy After Getting the Data?
+
+I gave myself one rule:
+
+> “Treat yourself as the only ML engineer in the company responsible for the recommendation system. Build it from zero.”
+
+So the sequence of work fully mirrored an actual production pipeline:
+
+1. **Establish a reliable ETL base**: Spark + HDFS, standardized ORC, clean schema  
+2. **Build the feature store**: user / item / UI → 7-day window + long-term cumulative + scene pivot  
+3. **Construct the training table**: join all features back to the main log  
+4. **Train a baseline**: DNN to “feel the distribution”  
+5. **Address multi-scene interference**: MMoE / PLE  
+6. **Add semantic understanding**: BERT → Whitening  
+7. **Correct scene-specific text bias**: Content Tower  
+8. **Solve cold-start**: LLM fallback (compute only for cold/few-shot cases — extremely efficient)  
+9. **Full cold-start evaluation**: user_lvl × item_lvl × scene  
+10. **Save reproducible model artifacts**: hyperparameters, whitening matrices, feature metadata, weights, cold-start reports  
+
+This is not a student project—it’s a real ML engineering workflow.
+
+---
+
+## 🧠 What I Learned (Most Important Takeaways)
+
+### ① Recommendation systems are about “fixing information flow,” not “stacking models”
+My mindset from the start:
+
+- What information is missing?  
+- How does behavior transfer across scenes?  
+- What is sparse?  
+- How can text and structure complement each other?  
+- How to align features with business?  
+
+Whenever the right information was injected (e.g., semantic tower, LLM fallback), AUC jumped significantly.
+
+### ② Engineering > Architecture
+Real recommendation teams care far more about:
+
+- data reliability  
+- long-horizon features  
+- maintainable feature pipelines  
+- production-style evaluation  
+- cost-effective cold-start strategies  
+
+This project let me practice all of them.
+
+### ③ This is the kind of work I want to do
+I genuinely enjoy:
+
+- dissecting traffic distribution  
+- analyzing AUC across user_lvl/item_lvl  
+- thinking about how to make the model “smarter”  
+- adding semantic knowledge  
+- designing gates, experts, and tower logic  
+
+This project confirmed that ranking/MLE is the direction I want to grow toward.
+
+---
+
+## 🎯 Why This Project Matches ByteDance / Google / Rokt Perfectly
+
+Because these companies all require:
+
+### ✔ complex, multi-scene, multi-modal recommendation  
+(exactly like AntMRC)
+
+### ✔ multi-task modeling (MMoE / PLE)  
+(standard in ads/search/recommendation)
+
+### ✔ text + structured mixed feature systems  
+(core of search and ads)
+
+### ✔ cold-start handling  
+(LLM fallback is state-of-the-art)
+
+### ✔ end-to-end engineering ability  
+(the core of this project)
+
+---
+
+## ⭐ Conclusion: A Project That Demonstrates I Can Do Real Recommendation Engineering
+
+This project includes:
+
+- distributed ETL  
+- feature store design  
+- deep CTR modeling  
+- multi-task learning (MMoE / PLE)  
+- semantic modeling (BERT-Whitening)  
+- LLM fallback for cold-start  
+- full cold-start analysis  
+- reproducible artifacts  
+- scalable architecture (can handle tens of millions of rows)
+
+More importantly, it demonstrates the way I think as an MLE—not only “training a model,” but understanding **data, business, sparsity, cold-start, cost, and deployment**.
+
+If I had access to the full AntMRC dataset (millions to tens of millions), I’m confident I could push AUC to **0.98+**.
+
+This project is my proof to top-tier companies that:  
+➡️ **I already have the end-to-end recommendation system engineering mindset—and I’m ready to contribute immediately.**
+
 
 
 ## CHINESE 中文
