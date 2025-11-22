@@ -8,12 +8,14 @@ That’s why I chose the **AntMRC dataset** — a real-world, multimodal dataset
 Over the next few weeks, I treated this like a real company project. I wrote the Spark + HDFS ETL pipeline myself, designed the feature store layout, built user/item/UI features, gradually increased model complexity, added semantic towers, and finally solved cold-start with an LLM fallback. I didn’t just “stack models”; every step was motivated by a concrete issue I observed from the data.
 
 The result surprised me even more:  
-➡️ **Baseline DNN AUC: 0.73**  
-➡️ **MMoE multi-task AUC: ~0.80+**  
-➡️ **PLE expert routing AUC: ~0.86–0.87**  
-➡️ **Adding BERT-Whitening embeddings: ~0.90+**  
-➡️ **Introducing task-level content towers: ~0.93**  
-➡️ **Final Fusion + LLM cold-start fallback: 0.9739 (Val), 0.9717 (Test)**  
+| Stage | Model | Overall AUC |
+|------|-------|-------------|
+| Baseline | Simple DNN | **0.74–0.75** |
+| Multi-task | MMoE | **0.80–0.83** |
+| Expert routing | PLE | **0.82–0.86** |
+| Semantic features | MMoE + BERT-Whitening | **0.86–0.87** |
+| Cold-start enhancement | + LLM Fallback | **0.87–0.93** |
+| **Final fusion system** | **MMoE + Content Tower + α-Gate + BERT + LLM** | **0.9739 (val) / 0.9717 (test)** |
 A total lift of **+24 percentage points**, achieved through systematic engineering — not guesswork.
 
 Looking back, this project reflects who I am as an engineer:  
